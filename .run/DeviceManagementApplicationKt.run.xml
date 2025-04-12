@@ -1,0 +1,12 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="DeviceManagementApplicationKt" type="JetRunConfigurationType" nameIsGenerated="true">
+    <option name="MAIN_CLASS_NAME" value="br.dev.s2w.jsensors.device.management.DeviceManagementApplicationKt" />
+    <module name="device-management.main" />
+    <shortenClasspath name="NONE" />
+    <option name="VM_PARAMETERS" value="-XX:MaxRAM=256M" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/microservices/device-management-kotlin" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

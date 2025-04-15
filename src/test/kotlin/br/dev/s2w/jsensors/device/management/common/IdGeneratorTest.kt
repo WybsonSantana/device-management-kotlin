@@ -1,4 +1,4 @@
-package br.dev.s2w.jsensors.device.management
+package br.dev.s2w.jsensors.device.management.common
 
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test

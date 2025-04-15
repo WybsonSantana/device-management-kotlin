@@ -1,4 +1,4 @@
-package br.dev.s2w.jsensors.device.management
+package br.dev.s2w.jsensors.device.management.common
 
 import io.hypersistence.tsid.TSID
 

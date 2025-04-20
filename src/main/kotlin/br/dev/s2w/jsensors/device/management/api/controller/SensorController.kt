@@ -1,6 +1,8 @@
 package br.dev.s2w.jsensors.device.management.api.controller
 
 import br.dev.s2w.jsensors.device.management.api.model.SensorInput
+import br.dev.s2w.jsensors.device.management.api.model.SensorOutput
+import br.dev.s2w.jsensors.device.management.api.model.toSensorOutput
 import br.dev.s2w.jsensors.device.management.common.IdGenerator
 import br.dev.s2w.jsensors.device.management.domain.model.Sensor
 import br.dev.s2w.jsensors.device.management.domain.model.SensorId
@@ -16,7 +18,7 @@ class SensorController(
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    fun create(@RequestBody input: SensorInput) =
+    fun create(@RequestBody input: SensorInput): SensorOutput =
         Sensor(
             id = SensorId(IdGenerator.generateTSID()),
             name = input.name,
@@ -25,6 +27,6 @@ class SensorController(
             protocol = input.protocol,
             model = input.model,
             enabled = false
-        ).let(sensorRepository::saveAndFlush)
+        ).let(sensorRepository::saveAndFlush).toSensorOutput()
 
 }

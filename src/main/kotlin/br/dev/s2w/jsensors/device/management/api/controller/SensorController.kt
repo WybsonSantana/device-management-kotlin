@@ -8,6 +8,9 @@ import br.dev.s2w.jsensors.device.management.domain.model.Sensor
 import br.dev.s2w.jsensors.device.management.domain.model.SensorId
 import br.dev.s2w.jsensors.device.management.domain.repository.SensorRepository
 import io.hypersistence.tsid.TSID
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
+import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
@@ -17,6 +20,11 @@ import org.springframework.web.server.ResponseStatusException
 class SensorController(
     private val sensorRepository: SensorRepository
 ) {
+
+    @GetMapping
+    fun search(@PageableDefault pageable: Pageable): Page<SensorOutput> =
+        sensorRepository.findAll(pageable)
+            .map { it.toSensorOutput() }
 
     @GetMapping("/{sensorId}")
     fun getOne(@PathVariable sensorId: TSID): SensorOutput =

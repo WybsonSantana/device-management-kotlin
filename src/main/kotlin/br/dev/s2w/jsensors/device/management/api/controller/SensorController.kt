@@ -45,4 +45,23 @@ class SensorController(
             enabled = false
         ).let(sensorRepository::saveAndFlush).toSensorOutput()
 
+    @PutMapping("/{sensorId}")
+    fun update(@PathVariable sensorId: TSID, @RequestBody input: SensorInput): SensorOutput =
+        sensorRepository.findById(SensorId(sensorId))
+            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND) }
+            .copy(
+                name = input.name,
+                ip = input.ip,
+                location = input.location,
+                protocol = input.protocol,
+                model = input.model
+            ).let(sensorRepository::save).toSensorOutput()
+
+    @DeleteMapping("/{sensorId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun delete(@PathVariable sensorId: TSID): Unit =
+        sensorRepository.findById(SensorId(sensorId))
+            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND) }
+            .let(sensorRepository::delete)
+
 }

@@ -9,7 +9,7 @@ import jakarta.persistence.Id
 data class Sensor(
     @Id
     @AttributeOverride(name = "value", column = Column(name = "id", columnDefinition = "BIGINT"))
-    val id: br.dev.s2w.ksensors.device.management.domain.model.SensorId,
+    val id: SensorId,
 
     val name: String,
 

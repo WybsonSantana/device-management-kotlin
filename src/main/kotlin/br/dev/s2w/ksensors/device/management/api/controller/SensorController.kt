@@ -1,9 +1,10 @@
 package br.dev.s2w.ksensors.device.management.api.controller
 
+import br.dev.s2w.ksensors.device.management.api.client.SensorMonitoringClient
 import br.dev.s2w.ksensors.device.management.api.model.SensorInput
 import br.dev.s2w.ksensors.device.management.api.model.SensorOutput
+import br.dev.s2w.ksensors.device.management.api.model.toSensor
 import br.dev.s2w.ksensors.device.management.api.model.toSensorOutput
-import br.dev.s2w.ksensors.device.management.common.IdGenerator
 import br.dev.s2w.ksensors.device.management.domain.model.SensorId
 import br.dev.s2w.ksensors.device.management.domain.repository.SensorRepository
 import io.hypersistence.tsid.TSID
@@ -17,7 +18,8 @@ import org.springframework.web.server.ResponseStatusException
 @RestController
 @RequestMapping("/api/sensors")
 class SensorController(
-    private val sensorRepository: SensorRepository
+    private val sensorRepository: SensorRepository,
+    private val sensorMonitoringClient: SensorMonitoringClient
 ) {
 
     @GetMapping
@@ -33,27 +35,21 @@ class SensorController(
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    fun create(@RequestBody input: SensorInput): SensorOutput =
-        br.dev.s2w.ksensors.device.management.domain.model.Sensor(
-            id = SensorId(IdGenerator.generateTSID()),
-            name = input.name,
-            ip = input.ip,
-            location = input.location,
-            protocol = input.protocol,
-            model = input.model,
-            enabled = false
-        ).let(sensorRepository::saveAndFlush).toSensorOutput()
+    fun create(@RequestBody sensorInput: SensorInput): SensorOutput =
+        sensorInput.toSensor()
+            .let(sensorRepository::saveAndFlush)
+            .toSensorOutput()
 
     @PutMapping("/{sensorId}")
-    fun update(@PathVariable sensorId: TSID, @RequestBody input: SensorInput): SensorOutput =
+    fun update(@PathVariable sensorId: TSID, @RequestBody sensorInput: SensorInput): SensorOutput =
         sensorRepository.findById(SensorId(sensorId))
             .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND) }
             .copy(
-                name = input.name,
-                ip = input.ip,
-                location = input.location,
-                protocol = input.protocol,
-                model = input.model
+                name = sensorInput.name,
+                ip = sensorInput.ip,
+                location = sensorInput.location,
+                protocol = sensorInput.protocol,
+                model = sensorInput.model
             ).let(sensorRepository::save).toSensorOutput()
 
     @DeleteMapping("/{sensorId}")
@@ -69,7 +65,8 @@ class SensorController(
         sensorRepository.findById(SensorId(sensorId))
             .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND) }
             .copy(enabled = true)
-            .also(sensorRepository::save)
+            .apply(sensorRepository::save)
+            .run { sensorMonitoringClient.enableMonitoring(sensorId) }
 
     @DeleteMapping("/{sensorId}/enable")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -77,6 +74,7 @@ class SensorController(
         sensorRepository.findById(SensorId(sensorId))
             .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND) }
             .copy(enabled = false)
-            .also(sensorRepository::save)
+            .apply(sensorRepository::save)
+            .run { sensorMonitoringClient.disableMonitoring(sensorId) }
 
 }

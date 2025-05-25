@@ -1,10 +1,7 @@
 package br.dev.s2w.ksensors.device.management.api.controller
 
 import br.dev.s2w.ksensors.device.management.api.client.SensorMonitoringClient
-import br.dev.s2w.ksensors.device.management.api.model.SensorInput
-import br.dev.s2w.ksensors.device.management.api.model.SensorOutput
-import br.dev.s2w.ksensors.device.management.api.model.toSensor
-import br.dev.s2w.ksensors.device.management.api.model.toSensorOutput
+import br.dev.s2w.ksensors.device.management.api.model.*
 import br.dev.s2w.ksensors.device.management.domain.model.SensorId
 import br.dev.s2w.ksensors.device.management.domain.repository.SensorRepository
 import io.hypersistence.tsid.TSID
@@ -32,6 +29,17 @@ class SensorController(
         sensorRepository.findById(SensorId(sensorId))
             .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND) }
             .toSensorOutput()
+
+    @GetMapping("/{sensorId}/detail")
+    fun getOneWithDetail(@PathVariable sensorId: TSID): SensorDetailOutput =
+        sensorRepository.findById(SensorId(sensorId))
+            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND) }
+            .run {
+                SensorDetailOutput(
+                    sensor = this.toSensorOutput(),
+                    monitoring = sensorMonitoringClient.getDetail(sensorId)
+                )
+            }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

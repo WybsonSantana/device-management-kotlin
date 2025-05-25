@@ -11,6 +11,7 @@ class TSIDJacksonConfig {
     @Bean
     fun tsidModule() = SimpleModule().apply {
         addSerializer(TSID::class.java, TSIDToStringSerializer())
+        addDeserializer(TSID::class.java, StringToTSIDDeserializer())
     }
 
 }

@@ -14,7 +14,6 @@ import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
-import kotlin.collections.copy
 
 @RestController
 @RequestMapping("/api/sensors")
@@ -64,5 +63,21 @@ class SensorController(
         sensorRepository.findById(SensorId(sensorId))
             .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND) }
             .let(sensorRepository::delete)
+
+    @PutMapping("/{sensorId}/enable")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun enable(@PathVariable sensorId: TSID) =
+        sensorRepository.findById(SensorId(sensorId))
+            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND) }
+            .copy(enabled = true)
+            .also(sensorRepository::save)
+
+    @DeleteMapping("/{sensorId}/enable")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun disable(@PathVariable sensorId: TSID) =
+        sensorRepository.findById(SensorId(sensorId))
+            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND) }
+            .copy(enabled = false)
+            .also(sensorRepository::save)
 
 }

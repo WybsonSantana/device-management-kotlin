@@ -7,12 +7,14 @@ import br.dev.s2w.ksensors.device.management.common.IdGenerator
 import br.dev.s2w.ksensors.device.management.domain.model.Sensor
 import br.dev.s2w.ksensors.device.management.domain.model.SensorId
 import br.dev.s2w.ksensors.device.management.domain.repository.SensorRepository
+import io.hypersistence.tsid.TSID
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
+import kotlin.collections.copy
 
 @RestController
 @RequestMapping("/api/sensors")
@@ -43,5 +45,24 @@ class SensorController(
             model = input.model,
             enabled = false
         ).let(sensorRepository::saveAndFlush).toSensorOutput()
+
+    @PutMapping("/{sensorId}")
+    fun update(@PathVariable sensorId: TSID, @RequestBody input: SensorInput): SensorOutput =
+        sensorRepository.findById(SensorId(sensorId))
+            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND) }
+            .copy(
+                name = input.name,
+                ip = input.ip,
+                location = input.location,
+                protocol = input.protocol,
+                model = input.model
+            ).let(sensorRepository::save).toSensorOutput()
+
+    @DeleteMapping("/{sensorId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun delete(@PathVariable sensorId: TSID): Unit =
+        sensorRepository.findById(SensorId(sensorId))
+            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND) }
+            .let(sensorRepository::delete)
 
 }

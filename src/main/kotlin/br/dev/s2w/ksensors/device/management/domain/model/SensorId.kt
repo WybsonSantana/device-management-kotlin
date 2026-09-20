@@ -8,7 +8,7 @@ import java.io.Serializable
 @Embeddable
 data class SensorId(
     @JsonValue
-    private val value: TSID
+    val value: TSID
 ) : Serializable {
 
     constructor(value: Long) : this(TSID.from(value))

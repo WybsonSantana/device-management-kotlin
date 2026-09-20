@@ -9,13 +9,19 @@ import br.dev.s2w.ksensors.device.management.domain.model.SensorId
 import br.dev.s2w.ksensors.device.management.domain.repository.SensorRepository
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.server.ResponseStatusException
 
 @RestController
 @RequestMapping("/api/sensors")
 class SensorController(
     private val sensorRepository: SensorRepository
 ) {
+
+    @GetMapping("{sensorId}")
+    fun getOne(@PathVariable sensorId: SensorId): SensorOutput =
+        sensorRepository.findById(sensorId)
+            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND) }
+            .toSensorOutput()
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

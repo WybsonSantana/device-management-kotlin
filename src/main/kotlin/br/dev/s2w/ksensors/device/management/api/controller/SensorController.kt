@@ -2,6 +2,7 @@ package br.dev.s2w.ksensors.device.management.api.controller
 
 import br.dev.s2w.ksensors.device.management.api.client.SensorMonitoringClient
 import br.dev.s2w.ksensors.device.management.api.converter.toSensorOutput
+import br.dev.s2w.ksensors.device.management.api.model.SensorDetailOutput
 import br.dev.s2w.ksensors.device.management.api.model.SensorInput
 import br.dev.s2w.ksensors.device.management.api.model.SensorOutput
 import br.dev.s2w.ksensors.device.management.common.IdGenerator
@@ -33,6 +34,17 @@ class SensorController(
         sensorRepository.findById(sensorId)
             .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND) }
             .toSensorOutput()
+
+    @GetMapping("{sensorId}/detail")
+    fun getOneWithDetail(@PathVariable sensorId: TSID): SensorDetailOutput =
+        sensorRepository.findById(SensorId(sensorId))
+            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND) }
+            .run {
+                SensorDetailOutput(
+                    sensor = toSensorOutput(),
+                    monitoring = sensorMonitoringClient.getDetail(sensorId)
+                )
+            }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

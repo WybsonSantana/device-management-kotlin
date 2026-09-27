@@ -13,6 +13,7 @@ class TSIDJacksonConfig {
     fun tsidModule(): Module =
         SimpleModule().apply {
             addSerializer(TSID::class.java, TSIDToStringSerializer())
+            addDeserializer(TSID::class.java, StringToTSIDDeserializer())
         }
 
 }

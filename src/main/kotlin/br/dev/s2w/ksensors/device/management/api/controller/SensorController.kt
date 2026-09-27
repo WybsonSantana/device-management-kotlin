@@ -1,5 +1,6 @@
 package br.dev.s2w.ksensors.device.management.api.controller
 
+import br.dev.s2w.ksensors.device.management.api.client.SensorMonitoringClient
 import br.dev.s2w.ksensors.device.management.api.converter.toSensorOutput
 import br.dev.s2w.ksensors.device.management.api.model.SensorInput
 import br.dev.s2w.ksensors.device.management.api.model.SensorOutput
@@ -18,6 +19,7 @@ import org.springframework.web.server.ResponseStatusException
 @RestController
 @RequestMapping("/api/sensors")
 class SensorController(
+    private val sensorMonitoringClient: SensorMonitoringClient,
     private val sensorRepository: SensorRepository
 ) {
 
@@ -71,6 +73,7 @@ class SensorController(
             .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND) }
             .copy(enabled = true)
             .also(sensorRepository::save)
+            .also { sensorMonitoringClient.enableMonitoring(sensorId) }
 
     @DeleteMapping("/{sensorId}/enable")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -79,5 +82,6 @@ class SensorController(
             .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND) }
             .copy(enabled = false)
             .also(sensorRepository::save)
+            .also { sensorMonitoringClient.disableMonitoring(sensorId) }
 
 }
